@@ -51,10 +51,6 @@ jobs:
       # Build
       - run: make
       - run: make install
-      - run: ls -la ./src
-      - run: chmod +x ./src/bitcoin-cli
-      - run: ./src/bitcoin-cli  -rpcuser=majortom -rpcpassword=soggydollarbar -rpcbind=http://mercury.foxtrot.block.cointree.com:8333 getinfo
-      - run: aws s3 cp /usr/local/bin/bitcoin-cli s3://block.cointree.com/config/bitcoin-cli
 
       - save_cache:
          key: bitcoin-{{ .Branch }}-cache-{{ arch }}
@@ -62,6 +58,13 @@ jobs:
       - persist_to_workspace:
          root: ~/bitcoin-abc
          <<: *bitcoin_cache_dirs
+
+      - run: ls -la ./src
+      - run: chmod +x ./src/bitcoin-cli
+      - run: ./src/bitcoin-cli  -rpcuser=majortom -rpcpassword=soggydollarbar -rpcbind=http://mercury.foxtrot.block.cointree.com:8332 getinfo
+      - run: aws s3 cp /usr/local/bin/bitcoin-cli s3://block.cointree.com/config/bitcoin-cli
+
+
 
 workflows:
   version: 2
