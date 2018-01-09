@@ -9,7 +9,7 @@ setup_docker: &setup_docker
 jobs:
   build:
     docker:
-      - image: debian:stretch-slim
+      - image: circleci/node
         environment:
           AWS_CLI_VERSION: 1.11.167
           AWS_DEFAULT_REGION: ap-southeast-2
