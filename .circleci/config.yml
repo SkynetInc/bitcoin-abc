@@ -9,18 +9,20 @@ setup_docker: &setup_docker
 jobs:
   build:
     docker:
-      - image: debian:stretch-slim
+      - image: ubuntu:artful
         environment:
           AWS_CLI_VERSION: 1.11.167
           AWS_DEFAULT_REGION: ap-southeast-2
           PYTHON_PIP_VERSION: 9.0.1
           NODE_ENV: development
-          # BOOST_ROOT: /usr/include/boost
+          BITCOIN_ROOT: ~/bitcoin
+          BDB_PREFIX: /usr/local/db4
     working_directory: ~/bitcoin
     steps:
       - run: apt-get update
       - run: apt-get install -y git python-pip build-essential libtool autotools-dev automake pkg-config libssl-dev libevent-dev bsdmainutils clang cmake libogg-dev libvorbis-dev libflac-dev libfaad-dev libncursesw5-dev libasound2-dev libpulse-dev pulseaudio libmicrohttpd-dev libmp3lame-dev libcurl4-openssl-dev
-      - run: apt-get install libboost-all-dev
+      - run: apt-get install -y libboost-all-dev
+
       - checkout
       - setup_remote_docker
       - attach_workspace:
@@ -30,15 +32,31 @@ jobs:
             - bitcoin-{{ .Branch }}-cache-{{ arch }}
       # Install AWS CLI
       - run: pip install awscli==${AWS_CLI_VERSION}
-      # Build CLI
+
+      # Build Berkeley DB
+      - run: mkdir -p $BDB_PREFIX
+      - run: cd $BDB_PREFIX/..
+      # Fetch the source and verify that it is not tampered with
+      - run: wget 'http://download.oracle.com/berkeley-db/db-4.8.30.NC.tar.gz'
+      - run: echo '12edc0df75bf9abd7f82f821795bcee50f42cb2e5f76a6a281b85732798364ef  db-4.8.30.NC.tar.gz' | sha256sum -c
+      # -> db-4.8.30.NC.tar.gz: OK
+      - run: tar -xzvf db-4.8.30.NC.tar.gz
+      # Build the library and install to our prefix
+      - run: cd db-4.8.30.NC/build_unix/
+      #  Note: Do a static build so that it can be embedded into the executable, instead of having to find a .so at runtime
+      - run: ../dist/configure --enable-cxx --disable-shared --with-pic --prefix=$BDB_PREFIX
+      - run: make install
+      # Configure Bitcoin ABC to use our own-built instance of BDB
+      - run: cd $BITCOIN_ROOT
       - run: ./autogen.sh
-      - run: ./configure --with-gui=no
+      - run: ./configure --with-gui=no LDFLAGS="-L${BDB_PREFIX}/lib/" CPPFLAGS="-I${BDB_PREFIX}/include/" # (other args...)
+      # Build
       - run: make
       - run: make install
       - run: ls -la ./src
-      # - run: chmod +x ./src/bitcoin-cli
-      # - run: ./src/bitcoin-cli  -rpcuser=majortom -rpcpassword=soggydollarbar -rpcbind=http://mercury.foxtrot.block.cointree.com:8333 getinfo
-      - run: aws s3 cp /usr/local/bin/bitcoin* s3://block.cointree.com/config/bitcoin*
+      - run: chmod +x ./src/bitcoin-cli
+      - run: ./src/bitcoin-cli  -rpcuser=majortom -rpcpassword=soggydollarbar -rpcbind=http://mercury.foxtrot.block.cointree.com:8333 getinfo
+      - run: aws s3 cp /usr/local/bin/bitcoin-cli s3://block.cointree.com/config/bitcoin-cli
 
       - save_cache:
          key: bitcoin-{{ .Branch }}-cache-{{ arch }}
