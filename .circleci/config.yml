@@ -1,0 +1,54 @@
+version: 2
+
+bitcoin_cache_dirs: &bitcoin_cache_dirs
+  paths:
+    - "src"
+setup_docker: &setup_docker
+  version: 17.10.0-ce
+
+jobs:
+  build:
+    docker:
+      - image: debian:stretch-slim
+        environment:
+          AWS_CLI_VERSION: 1.11.167
+          AWS_DEFAULT_REGION: ap-southeast-2
+          PYTHON_PIP_VERSION: 9.0.1
+          NODE_ENV: development
+          # BOOST_ROOT: /usr/include/boost
+    working_directory: ~/bitcoin
+    steps:
+      - run: apt-get update
+      - run: apt-get install -y git python-pip build-essential libtool autotools-dev automake pkg-config libssl-dev libevent-dev bsdmainutils clang cmake libogg-dev libvorbis-dev libflac-dev libfaad-dev libncursesw5-dev libasound2-dev libpulse-dev pulseaudio libmicrohttpd-dev libmp3lame-dev libcurl4-openssl-dev
+      - run: apt-get install libboost-all-dev
+      - checkout
+      - setup_remote_docker
+      - attach_workspace:
+          at: ~/bitcoin
+      - restore_cache:
+          keys:
+            - bitcoin-{{ .Branch }}-cache-{{ arch }}
+      # Install AWS CLI
+      - run: pip install awscli==${AWS_CLI_VERSION}
+      # Build CLI
+      - run: ./autogen.sh
+      - run: ./configure --with-gui=no
+      - run: make
+      - run: make install
+      - run: ls -la ./src
+      # - run: chmod +x ./src/bitcoin-cli
+      # - run: ./src/bitcoin-cli  -rpcuser=majortom -rpcpassword=soggydollarbar -rpcbind=http://mercury.foxtrot.block.cointree.com:8333 getinfo
+      - run: aws s3 cp /usr/local/bin/bitcoin* s3://block.cointree.com/config/bitcoin*
+
+      - save_cache:
+         key: bitcoin-{{ .Branch }}-cache-{{ arch }}
+         <<: *bitcoin_cache_dirs
+      - persist_to_workspace:
+         root: ~/bitcoin
+         <<: *bitcoin_cache_dirs
+
+workflows:
+  version: 2
+  api:
+    jobs:
+      - build
