@@ -9,7 +9,7 @@ setup_docker: &setup_docker
 jobs:
   build:
     docker:
-      - image: circleci/node
+      - image: debian:stretch-slim
         environment:
           AWS_CLI_VERSION: 1.11.167
           AWS_DEFAULT_REGION: ap-southeast-2
@@ -19,10 +19,17 @@ jobs:
           BDB_PREFIX: /usr/local/db4
     working_directory: ~/bitcoin-abc
     steps:
-      - run: sudo apt-get update
-      - run: sudo apt-get install -y wget git python-pip build-essential libtool autotools-dev automake pkg-config libssl-dev libevent-dev bsdmainutils clang cmake libogg-dev libvorbis-dev libflac-dev libfaad-dev libncursesw5-dev libasound2-dev libpulse-dev pulseaudio libmicrohttpd-dev libmp3lame-dev libcurl4-openssl-dev
-      - run: sudo apt-get install -y libboost-all-dev
-
+      - run: apt-get update
+      - run: apt-get install -y wget git python-pip build-essential libtool autotools-dev automake pkg-config libssl-dev libevent-dev bsdmainutils clang cmake libogg-dev libvorbis-dev libflac-dev libfaad-dev libncursesw5-dev libasound2-dev libpulse-dev pulseaudio libmicrohttpd-dev libmp3lame-dev libcurl4-openssl-dev
+      - run: apt-get install -y libboost-all-dev
+      - run:
+          name: Install Docker client
+          command: |
+            set -x
+            VER="17.10.0-ce"
+            curl -L -o /tmp/docker-$VER.tgz https://get.docker.com/builds/Linux/x86_64/docker-$VER.tgz
+            tar -xz -C /tmp -f /tmp/docker-$VER.tgz
+            mv /tmp/docker/* /usr/bin
       - checkout
       - setup_remote_docker
       - attach_workspace:
@@ -31,7 +38,7 @@ jobs:
           keys:
             - bitcoin-abc-{{ .Branch }}-cache-{{ arch }}
       # Install AWS CLI
-      - run: sudo pip install awscli==${AWS_CLI_VERSION}
+      - run: pip install awscli==${AWS_CLI_VERSION}
 
       # Build Berkeley DB
       - run: mkdir -p $BDB_PREFIX
