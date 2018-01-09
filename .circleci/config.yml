@@ -22,14 +22,18 @@ jobs:
       - run: apt-get update
       - run: apt-get install -y curl wget git python-pip build-essential libtool autotools-dev automake pkg-config libssl-dev libevent-dev bsdmainutils clang cmake libogg-dev libvorbis-dev libflac-dev libfaad-dev libncursesw5-dev libasound2-dev libpulse-dev pulseaudio libmicrohttpd-dev libmp3lame-dev libcurl4-openssl-dev
       - run: apt-get install -y libboost-all-dev
-      - run:
-          name: Install Docker client
-          command: |
-            set -x
-            VER="17.10.0-ce"
-            curl -L -o /tmp/docker-$VER.tgz https://get.docker.com/builds/Linux/x86_64/docker-$VER.tgz
-            tar -xz -C /tmp -f /tmp/docker-$VER.tgz
-            mv /tmp/docker/* /usr/bin
+      - run: apt-get install docker-ce
+      # 
+      # - run: curl -fsSL https://download.docker.com/linux/$(. /etc/os-release; echo "$ID")/gpg | sudo apt-key add -
+      # - run: add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/$(. /etc/os-release; echo "$ID") $(lsb_release -cs) stable"
+      # - run:
+      #     name: Install Docker client
+      #     command: |
+      #       set -x
+      #       VER="17.10.0-ce"
+      #       curl -L -o /tmp/docker-$VER.tgz https://get.docker.com/builds/Linux/x86_64/docker-$VER.tgz
+      #       tar -xz -C /tmp -f /tmp/docker-$VER.tgz
+      #       mv /tmp/docker/* /usr/bin
       - checkout
       - setup_remote_docker
       - attach_workspace:
