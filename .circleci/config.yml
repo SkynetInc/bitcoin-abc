@@ -44,8 +44,8 @@ jobs:
       # Build the library and install to our prefix
       - run: cd db-4.8.30.NC/build_unix/
       #  Note: Do a static build so that it can be embedded into the executable, instead of having to find a .so at runtime
-      - run: ../dist/configure --enable-cxx --disable-shared --with-pic --prefix=$BDB_PREFIX
-      - run: make install
+      - run: cd db-4.8.30.NC/dist && ./configure --enable-cxx --disable-shared --with-pic --prefix=$BDB_PREFIX
+      - run: cd db-4.8.30.NC/dist/ && make install
       # Configure Bitcoin ABC to use our own-built instance of BDB
       - run: cd $BITCOIN_ROOT
       - run: ./autogen.sh
