@@ -65,6 +65,10 @@ jobs:
       - run: aws s3 cp src/bitcoin-tx s3://explorer.cointree.com/coins/bch/bin/bitcoin-tx
       - run: aws s3 cp src/.libs/ s3://explorer.cointree.com/coins/bch/lib/ --recursive
 
+      # Build and push BCH docker image to AWS
+      - run: docker build -f Dockerfile -t ${AWS_ACCOUNT_ID}.dkr.ecr.ap-southeast-2.amazonaws.com/bitcoin-abc:${CIRCLE_SHA1} .
+      - run: docker push ${AWS_ACCOUNT_ID}.dkr.ecr.ap-southeast-2.amazonaws.com/bitcoin-abc:${CIRCLE_SHA1}
+
 workflows:
   version: 2
   api:
