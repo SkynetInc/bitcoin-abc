@@ -63,7 +63,7 @@ jobs:
       - run: aws s3 cp src/bitcoin-cli s3://explorer.cointree.com/coins/bch/bin/bitcoin-cli
       - run: aws s3 cp src/bitcoin-seeder s3://explorer.cointree.com/coins/bch/bin/bitcoin-seeder
       - run: aws s3 cp src/bitcoin-tx s3://explorer.cointree.com/coins/bch/bin/bitcoin-tx
-      - run: aws s3 cp src/.libs/* s3://explorer.cointree.com/coins/bch/lib/ --recursive
+      - run: aws s3 cp src/.libs/ s3://explorer.cointree.com/coins/bch/lib/ --recursive
 
 workflows:
   version: 2
