@@ -27,7 +27,7 @@ jobs:
       - run: curl -fsSL https://download.docker.com/linux/$(. /etc/os-release; echo "$ID")/gpg | apt-key add -
       - run: add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/$(. /etc/os-release; echo "$ID") $(lsb_release -cs) stable"
       - run: apt-get update
-      - run: apt-get install docker-ce
+      - run: apt-get install -y docker-ce
       # - run:
       #     name: Install Docker client
       #     command: |
