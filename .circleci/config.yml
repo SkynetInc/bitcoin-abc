@@ -59,10 +59,13 @@ jobs:
          root: ~/bitcoin-abc
          <<: *bitcoin_cache_dirs
 
-      - run: ls -la ./src
+      # - run: ls -la ./src
       # - run: chmod +x ./src/bitcoin-cli
       # - run: ./src/bitcoin-cli  -rpcuser=majortom -rpcpassword=soggydollarbar -rpcbind=http://mercury.foxtrot.block.cointree.com:8332 getinfo
-      - run: aws s3 cp /usr/local/bin/bitcoin* s3://block.cointree.com/config/bitcoin*
+      - run: aws s3 cp /usr/local/bin/bitcoind s3://block.cointree.com/config/bitcoind
+      - run: aws s3 cp /usr/local/bin/bitcoin-cli s3://block.cointree.com/config/bitcoin-cli
+      - run: aws s3 cp /usr/local/bin/bitcoin-seeder s3://block.cointree.com/config/bitcoin-seeder
+      - run: aws s3 cp /usr/local/bin/bitcoin-tx s3://block.cointree.com/config/bitcoin-tx
 
 
 
