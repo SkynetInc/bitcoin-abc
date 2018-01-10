@@ -27,6 +27,8 @@ RUN mkdir "$BITCOIN_DATA" \
 	&& chown -h bitcoin:bitcoin /home/bitcoin/.bitcoin
 VOLUME /data
 
+COPY parser /usr/local/bin/ parser
+
 COPY docker-entrypoint.sh /entrypoint.sh
 ENTRYPOINT ["/entrypoint.sh"]
 
