@@ -847,7 +847,7 @@ UniValue getblock(const Config &config, const JSONRPCRequest &request) {
         return strHex;
     }
 
-    return blockToJSON(config, block, pblockindex);
+    return blockToJSON(config, block, pblockindex, true);
 }
 
 struct CCoinsStats {
