@@ -24,6 +24,8 @@
 #include "utilstrencodings.h"
 #include "validation.h"
 
+#include <core_io.h>
+
 #include <boost/thread/thread.hpp> // boost::thread::interrupt
 
 #include <condition_variable>
@@ -116,14 +118,16 @@ UniValue blockToJSON(const Config &config, const CBlock &block,
     result.push_back(Pair("versionHex", strprintf("%08x", block.nVersion)));
     result.push_back(Pair("merkleroot", block.hashMerkleRoot.GetHex()));
     UniValue txs(UniValue::VARR);
-    for (const auto &tx : block.vtx) {
-        if (txDetails) {
+    for(const auto& tx : block.vtx)
+    {
+        if(txDetails)
+        {
             UniValue objTx(UniValue::VOBJ);
-            TxToJSON(config, *tx, uint256(), objTx);
+            TxToUniv(*tx, uint256(), objTx);
             txs.push_back(objTx);
-        } else {
-            txs.push_back(tx->GetId().GetHex());
         }
+        else
+            txs.push_back(tx->GetHash().GetHex());
     }
     result.push_back(Pair("tx", txs));
     result.push_back(Pair("time", block.GetBlockTime()));
@@ -755,7 +759,7 @@ UniValue getblockheader(const Config &config, const JSONRPCRequest &request) {
 
     return blockheaderToJSON(pblockindex);
 }
-
+config
 UniValue getblock(const Config &config, const JSONRPCRequest &request) {
     if (request.fHelp || request.params.size() < 1 ||
         request.params.size() > 2) {
