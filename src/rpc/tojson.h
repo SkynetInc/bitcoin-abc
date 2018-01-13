@@ -16,7 +16,7 @@ void ScriptPubKeyToJSON(const Config &config, const CScript &scriptPubKey,
 void TxToJSON(const Config &config, const CTransaction &tx,
               const uint256 hashBlock, UniValue &entry);
 UniValue blockToJSON(const Config &config, const CBlock &block,
-                     const CBlockIndex *blockindex, bool txDetails = false);
+                     const CBlockIndex *blockindex, bool txDetails = true);
 UniValue blockheaderToJSON(const CBlockIndex *blockindex);
 
 #endif // BITCOIN_RPCTOJSON_H
